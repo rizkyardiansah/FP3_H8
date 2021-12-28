@@ -71,4 +71,6 @@ module.exports = (sequelize, DataTypes) => {
         Product.belongsTo(models.Category, {foreignKey: "CategoryId"});
         Product.hasMany(models.Transaction, {foreignKey: "ProductId"});
     }
+
+    return Product;
 }
