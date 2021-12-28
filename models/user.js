@@ -82,11 +82,11 @@ module.exports = (sequelize, DataTypes) => {
                     msg: "'balance' value should be number"
                 },
                 max: {
-                    args: 100000000,
+                    args: [100000000],
                     msg: "'balance' value cannot be greated than 100000000"
                 },
                 min: {
-                    args: 0,
+                    args: [0],
                     msg: "'balance' value cannot be lower than 0"
                 }
             }
@@ -101,11 +101,6 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'Users',
-        hooks: {
-            afterValidate: async (user) => {
-                user.password = await bcrypt.hash(user.password, 10);
-            }
-        }
     })
 
     User.associate = models => {

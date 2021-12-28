@@ -26,11 +26,11 @@ module.exports = (sequelize, DataTypes) => {
                     msg: "'price' value should be number"
                 },
                 min: {
-                    args: 0,
+                    args: [0],
                     msg: "'price' value cannot be lower than 0"
                 },
                 max: {
-                    args: 50000000,
+                    args: [50000000],
                     msg: "'price' value cannot be greater than 50000000"
                 } 
             }
@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
                     msg: "'stock' value should be number"
                 },
                 min: {
-                    args: 5,
+                    args: [5],
                     msg: "'stock' value cannot be lower than 5"
                 }
             }
