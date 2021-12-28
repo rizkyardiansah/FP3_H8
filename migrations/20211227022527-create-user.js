@@ -16,6 +16,7 @@ module.exports = {
       email: {
         allowNull: false,
         type: Sequelize.STRING,
+        unique: true,
       }, 
       password: {
         allowNull: false,
@@ -27,7 +28,7 @@ module.exports = {
       },
       role: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       balance: {
         allowNull: false,
