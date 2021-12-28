@@ -1,3 +1,5 @@
+const bcrypt = require('bcrypt')
+
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define('User', {
         id: {
@@ -98,7 +100,12 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
         }
     }, {
-        tableName: 'Users'
+        tableName: 'Users',
+        hooks: {
+            afterValidate: async (user) => {
+                user.password = await bcrypt.hash(user.password, 10);
+            }
+        }
     })
 
     User.associate = models => {
