@@ -95,3 +95,49 @@ exports.login = async (req, res) => {
         })
     }
 }
+
+exports.edit = async (req, res) => {
+    const {userId} = req.params
+    const {full_name:newFullName, email:newEmail} = req.body
+
+    try {
+        const user = await User.findByPk(userId)
+
+        // cek apakah user dengan id tersebut ditemukan
+        if (user == null) {
+            //jika user tidak ditemukan maka tampilkan error 404
+            return res.status(404).json({
+                status: 'Not Found',
+                message: 'User not found'
+            })
+        }
+
+        const newUser = await user.set({
+            full_name: newFullName,
+            email: newEmail,
+            password: user.password,
+            gender: user.gender,
+            role: user.role,
+            createdAt: user.createdAt,
+            updatedAt: new Date(),
+        })
+
+        const result = await newUser.save()
+
+        return res.status(200).json({
+            user: {
+                id: result.id,
+                full_name: result.full_name,
+                email: result.email,
+                createdAt: result.createdAt,
+                updatedAt: result.updatedAt
+            }
+        })
+    } catch (error) {
+        //untuk menampilkan error
+        return res.status(500).json({
+            status: 'Server Error',
+            message: error.message
+        })
+    }
+}
