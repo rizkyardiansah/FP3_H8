@@ -141,3 +141,29 @@ exports.edit = async (req, res) => {
         })
     }
 }
+
+exports.delete = async (req, res) => {
+    const {userId} = req.params
+
+    try {
+        const user = await User.findByPk(userId)
+
+        if (user == null) {
+            return res.status(404).json({
+                status: 'Not Found',
+                message: 'User not found'
+            })
+        }
+
+        const result = await User.destroy({where: {id: userId}})
+        if (result == 1) {
+            return res.status(200).json({message: "Your account has been successfully deleted"})
+        }
+    } catch (error) {
+        //untuk menampilkan error
+        return res.status(500).json({
+            status: 'Server Error',
+            message: error.message
+        })
+    }
+}
