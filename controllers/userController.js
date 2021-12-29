@@ -24,7 +24,7 @@ exports.register = (req, res) => {
         udpatedAt: new Date(),
     })
     .then(result => {
-        res.status(201).json({
+        return res.status(201).json({
             user: {
                 id: result.dataValues.id,
                 full_name: result.dataValues.full_name,
@@ -60,7 +60,7 @@ exports.login = async (req, res) => {
         // cek apakah user dengan email tersebut ditemukan
         if (user == null) {
             //jika user tidak ditemukan maka tampilkan error 401
-            res.status(401).json({
+            return res.status(401).json({
                 status: 'Unauthorized',
                 message: 'Email or Password is not correct'
             })
@@ -70,7 +70,7 @@ exports.login = async (req, res) => {
         //cek apakah email dah password cocok
         if (compareResult == false) {
             //jika password salah maka tampilkan error 401
-            res.status(401).json({
+            return res.status(401).json({
                 status: 'Unauthorized',
                 message: 'Email or Password is not correct'
             })
@@ -84,12 +84,12 @@ exports.login = async (req, res) => {
         //membuat token jwt
         const token = await jwt.sign(payload, jwtSecret) 
         //mengirimkan token jwt
-        res.status(200).json({
+        return res.status(200).json({
             jwt: token
         })
     } catch (error) {
         //untuk menampilkan error
-        res.status(500).json({
+        return res.status(500).json({
             status: 'Server Error',
             message: error.message
         })
