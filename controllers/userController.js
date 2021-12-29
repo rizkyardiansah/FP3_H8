@@ -1,6 +1,8 @@
 const { User } = require('../models')
 const bcrypt = require('bcrypt')
 const rupiahFormatter = require('../utils/rupiahFormatter')
+const jwt = require('jsonwebtoken')
+const jwtSecret = process.env.JWT_SECRET_KEY
 
 exports.register = (req, res) => {
     const {full_name, password, gender, email} = req.body
@@ -47,4 +49,49 @@ exports.register = (req, res) => {
             message: errorList
         });
     })
+}
+
+exports.login = async (req, res) => {
+    const {email, password} = req.body
+
+    try {
+        const user = await User.findOne({where: {email: email} })
+
+        // cek apakah user dengan email tersebut ditemukan
+        if (user == null) {
+            //jika user tidak ditemukan maka tampilkan error 401
+            res.status(401).json({
+                status: 'Unauthorized',
+                message: 'Email or Password is not correct'
+            })
+        }
+
+        const compareResult = await bcrypt.compare(password, user.dataValues.password)
+        //cek apakah email dah password cocok
+        if (compareResult == false) {
+            //jika password salah maka tampilkan error 401
+            res.status(401).json({
+                status: 'Unauthorized',
+                message: 'Email or Password is not correct'
+            })
+        }
+
+        //data yang akan disimpan di jwt
+        const payload = {
+            id: user.dataValues.id
+        }
+
+        //membuat token jwt
+        const token = await jwt.sign(payload, jwtSecret) 
+        //mengirimkan token jwt
+        res.status(200).json({
+            jwt: token
+        })
+    } catch (error) {
+        //untuk menampilkan error
+        res.status(500).json({
+            status: 'Server Error',
+            message: error.message
+        })
+    }
 }
