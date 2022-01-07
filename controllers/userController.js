@@ -5,50 +5,60 @@ const jwt = require('jsonwebtoken')
 const jwtSecret = process.env.JWT_SECRET_KEY
 
 exports.register = (req, res) => {
+    //melakukan object destructuring untuk mendapatkan data yang diinginkan
     const {full_name, password, gender, email} = req.body
 
-    User.addHook('afterValidate', async (user, options) => {
-        user.balance = 0
+    //membuat hook 'beforeValidate' untuk menyimpan nilai default dari user
+    User.beforeValidate(async (user, options) => {
+        user.balance = 0;
+        user.role = 'costumer';
+        user.createdAt = new Date();
+        user.updatedAt = new Date();
+    })
+
+    //membuat hook 'afterValidate' untuk menyimpan password yang telah dihash
+    User.afterValidate( async (user, options) => {
         user.password = await bcrypt.hash(user.password, 10)
     })
 
-    User
-    .create({
-        full_name,
-        email,
-        password,
-        gender,
-        balance: 0,
-        role: 'costumer',
-        createdAt: new Date(),
-        udpatedAt: new Date(),
-    })
-    .then(result => {
+    try {
+        //membuat user
+        const user = await User.create({full_name, password, gender, email})
+        //mengembalikan data user
         return res.status(201).json({
             user: {
-                id: result.dataValues.id,
-                full_name: result.dataValues.full_name,
-                email: result.dataValues.email,
-                gender: result.dataValues.gender,
-                balance: rupiahFormatter(result.dataValues.balance),
-                createdAt: result.dataValues.createdAt,
+                id: user.id,
+                full_name: user.full_name,
+                email: user.email,
+                gender: user.gender,
+                balance: rupiahFormatter(user.balance),
+                createdAt: user.createdAt,
             }
         })
-    })
-    .catch(error => {
-        //jika terjadi error, tampilkan respon error
-        const err = error.errors
-        const errorList = err.map(d => {
-            let obj = {}
-            obj[d.path] = d.message
-            return obj;
+    } catch (error) {
+        // jika terjadi error sequelize terjadi
+        // maka tampilkan respon error
+        if (error.name === "SequelizeValidationError") {
+            const err = error.errors
+            const errorList = err.map(d => {
+                let obj = {}
+                obj[d.path] = d.message
+                return obj;
+            })
+    
+            return res.status(400).json({
+                status: 'Data Error',
+                message: errorList
+            });
+        }
+    
+        //jika terjadi server error
+        //maka kembalikan respon tersebut
+        return res.status(500).json({
+            status: 'Server Error',
+            message: error.message
         })
-
-        return res.status(400).json({
-            status: 'error',
-            message: errorList
-        });
-    })
+    }
 }
 
 exports.login = async (req, res) => {
