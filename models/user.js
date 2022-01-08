@@ -101,6 +101,20 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'Users',
+        hooks: {
+            afterValidate: async function(user) {
+                user.password = await bcrypt.hash(user.password, 10);
+            },
+            beforeCreate: function(user) {
+                user.balance = 0;
+                user.role = 'costumer';
+                user.createdAt = new Date();
+                user.updatedAt = new Date();
+            },
+            beforeUpdate: function(user) {
+                user.updatedAt = new Date();
+            }
+        }
     })
 
     User.associate = models => {

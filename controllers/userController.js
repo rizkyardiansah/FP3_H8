@@ -4,22 +4,9 @@ const rupiahFormatter = require('../utils/rupiahFormatter')
 const jwt = require('jsonwebtoken')
 const jwtSecret = process.env.JWT_SECRET_KEY
 
-exports.register = (req, res) => {
+exports.register = async (req, res) => {
     //melakukan object destructuring untuk mendapatkan data yang diinginkan
     const {full_name, password, gender, email} = req.body
-
-    //membuat hook 'beforeValidate' untuk menyimpan nilai default dari user
-    User.beforeValidate(async (user, options) => {
-        user.balance = 0;
-        user.role = 'costumer';
-        user.createdAt = new Date();
-        user.updatedAt = new Date();
-    })
-
-    //membuat hook 'afterValidate' untuk menyimpan password yang telah dihash
-    User.afterValidate( async (user, options) => {
-        user.password = await bcrypt.hash(user.password, 10)
-    })
 
     try {
         //membuat user
@@ -27,18 +14,18 @@ exports.register = (req, res) => {
         //mengembalikan data user
         return res.status(201).json({
             user: {
-                id: user.id,
-                full_name: user.full_name,
-                email: user.email,
-                gender: user.gender,
-                balance: rupiahFormatter(user.balance),
-                createdAt: user.createdAt,
+                id: user.dataValues.id,
+                full_name: user.dataValues.full_name,
+                email: user.dataValues.email,
+                gender: user.dataValues.gender,
+                balance: rupiahFormatter(user.dataValues.balance),
+                createdAt: user.dataValues.createdAt,
             }
         })
     } catch (error) {
         // jika terjadi error sequelize terjadi
         // maka tampilkan respon error
-        if (error.name === "SequelizeValidationError") {
+        if (error.name.includes("Sequelize")) {
             const err = error.errors
             const errorList = err.map(d => {
                 let obj = {}
@@ -62,11 +49,18 @@ exports.register = (req, res) => {
 }
 
 exports.login = async (req, res) => {
+    //melakukan object destructuring untuk mendapatkan data yang diinginkan
     const {email, password} = req.body
+
+    if (email === undefined || password === undefined) {
+        return res.status(400).json({
+            status: 'Data Error',
+            message: "field 'email' and 'password' is required"
+        })
+    }
 
     try {
         const user = await User.findOne({where: {email: email} })
-
         // cek apakah user dengan email tersebut ditemukan
         if (user == null) {
             //jika user tidak ditemukan maka tampilkan error 401
@@ -92,13 +86,30 @@ exports.login = async (req, res) => {
         }
 
         //membuat token jwt
-        const token = await jwt.sign(payload, jwtSecret) 
+        const token = await jwt.sign(payload, jwtSecret, { expiresIn: '1h'}) 
         //mengirimkan token jwt
         return res.status(200).json({
             jwt: token
         })
     } catch (error) {
-        //untuk menampilkan error
+        // jika terjadi error sequelize terjadi
+        // maka tampilkan respon error
+        if (error.name.includes("Sequelize")) {
+            const err = error.errors
+            const errorList = err.map(d => {
+                let obj = {}
+                obj[d.path] = d.message
+                return obj;
+            })
+    
+            return res.status(400).json({
+                status: 'Data Error',
+                message: errorList
+            });
+        }
+    
+        //jika terjadi server error
+        //maka kembalikan respon tersebut
         return res.status(500).json({
             status: 'Server Error',
             message: error.message
@@ -124,27 +135,39 @@ exports.edit = async (req, res) => {
 
         const newUser = await user.set({
             full_name: newFullName,
-            email: newEmail,
-            password: user.password,
-            gender: user.gender,
-            role: user.role,
-            createdAt: user.createdAt,
-            updatedAt: new Date(),
+            email: newEmail
         })
 
         const result = await newUser.save()
 
         return res.status(200).json({
             user: {
-                id: result.id,
-                full_name: result.full_name,
-                email: result.email,
-                createdAt: result.createdAt,
-                updatedAt: result.updatedAt
+                id: result.dataValues.id,
+                full_name: result.dataValues.full_name,
+                email: result.dataValues.email,
+                createdAt: result.dataValues.createdAt,
+                updatedAt: result.dataValues.updatedAt
             }
         })
     } catch (error) {
-        //untuk menampilkan error
+        // jika terjadi error sequelize terjadi
+        // maka tampilkan respon error
+        if (error.name.includes("Sequelize")) {
+            const err = error.errors
+            const errorList = err.map(d => {
+                let obj = {}
+                obj[d.path] = d.message
+                return obj;
+            })
+    
+            return res.status(400).json({
+                status: 'Data Error',
+                message: errorList
+            });
+        }
+    
+        //jika terjadi server error
+        //maka kembalikan respon tersebut
         return res.status(500).json({
             status: 'Server Error',
             message: error.message
@@ -158,22 +181,92 @@ exports.delete = async (req, res) => {
     try {
         const user = await User.findByPk(userId)
 
+        //periksa apakah user dengan userId tersebut ditemukan
         if (user == null) {
+            //jika tidak maka tampilkan error not found
             return res.status(404).json({
                 status: 'Not Found',
                 message: 'User not found'
             })
         }
 
+        //jika ada maka hapus data dengan id tersebut
         const result = await User.destroy({where: {id: userId}})
+        //jika data berhasil dihapus
         if (result == 1) {
+            //maka tampilkan respon berikut
             return res.status(200).json({message: "Your account has been successfully deleted"})
         }
     } catch (error) {
-        //untuk menampilkan error
+        // jika terjadi error sequelize terjadi
+        // maka tampilkan respon error
+        if (error.name.includes("Sequelize")) {
+            const err = error.errors
+            const errorList = err.map(d => {
+                let obj = {}
+                obj[d.path] = d.message
+                return obj;
+            })
+    
+            return res.status(400).json({
+                status: 'Data Error',
+                message: errorList
+            });
+        }
+    
+        //jika terjadi server error
+        //maka kembalikan respon tersebut
         return res.status(500).json({
             status: 'Server Error',
             message: error.message
         })
+    }
+}
+
+exports.topup = async (req, res) => {
+    let topupBalance = String(req.body.balance);
+    const {id:userId} = req.user;
+
+    //memastikan bahwa balance hanya berisi angka
+    if (topupBalance.match(/[^0-9]/)) {
+        return res.status(400).json({
+            status: "Data Error",
+            message: "field 'balance' should only contain number"
+        })
+    }
+    
+    try {
+        const user = await User.findByPk(userId);
+
+        const newUser = await user.set({
+            balance: user.dataValues.balance + Number(topupBalance)
+        })
+
+        const result = await newUser.save();
+
+        return res.status(200).json({message: `Your balance has been successfully updated to ${rupiahFormatter(result.dataValues.balance)}`})
+    } catch (error) {
+        // jika terjadi error sequelize terjadi
+        // maka tampilkan respon error
+        if (error.name.includes("Sequelize")) {
+            const err = error.errors
+            const errorList = err.map(d => {
+                let obj = {}
+                obj[d.path] = d.message
+                return obj;
+            })
+    
+            return res.status(400).json({
+                status: 'Data Error',
+                message: errorList
+            });
+        }
+    
+        //jika terjadi server error
+        //maka kembalikan respon tersebut
+        return res.status(500).json({
+            status: 'Server Error',
+            message: error.message
+        })       
     }
 }
