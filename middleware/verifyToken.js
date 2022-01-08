@@ -6,7 +6,7 @@ module.exports = async (req, res, next) => {
 
     //cek apakah ada token
     if (!token) {
-        res.status(403).json({
+       return res.status(403).json({
             status: 'Forbidden',
             message: 'Access token required'
         })
@@ -17,7 +17,7 @@ module.exports = async (req, res, next) => {
         req.user = user
         return next()
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             status: 'Server Error',
             message: error.message
         })
