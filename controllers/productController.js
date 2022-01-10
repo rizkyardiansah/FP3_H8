@@ -214,3 +214,39 @@ exports.editCategoryId = async (req, res) => {
         })
     }
 }
+
+exports.destroy = async (req, res) => {
+    const {productId} = req.params
+    const {role} = req.user
+
+    if (role !== "admin") {
+        return res.status(403).json({
+            status: "Forbidden",
+            message: "User unauthorized"
+        })
+    }
+    
+    try {
+        const product = await Product.findByPk(productId)
+
+        if (product === null) {
+            return res.status(404).json({
+                status: 'Not Found',
+                message: 'Product not found',
+            })
+        }
+
+        const result = await product.destroy()
+        console.log(result)
+
+        return res.status(200).json({
+            message: "Product has been successfully deleted"
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            status: 'Server Error',
+            message: error.message
+        })
+    }
+}
