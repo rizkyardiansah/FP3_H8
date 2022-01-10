@@ -65,3 +65,24 @@ exports.add = async (req, res) => {
         })
     }
 }
+
+exports.show = async (req, res) => {
+    try {
+        const products = await Product.findAll();
+        
+        products.forEach((product) => {
+            product.price = rupiahFormatter(product.price)
+        })
+
+        return res.status(200).json({
+            products
+        })
+    } catch (error) {
+        //jika terjadi server error
+        //maka kembalikan respon tersebut
+        return res.status(500).json({
+            status: 'Server Error',
+            message: error.message
+        })
+    }
+}
