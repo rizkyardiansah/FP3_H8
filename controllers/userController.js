@@ -82,7 +82,8 @@ exports.login = async (req, res) => {
 
         //data yang akan disimpan di jwt
         const payload = {
-            id: user.dataValues.id
+            id: user.dataValues.id,
+            role: user.dataValues.role
         }
 
         //membuat token jwt
