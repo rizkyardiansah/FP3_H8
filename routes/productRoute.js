@@ -4,4 +4,5 @@ const verifyToken = require('../middleware/verifyToken')
 
 router.post('/', verifyToken, controller.add)
 router.get('/', verifyToken, controller.show)
+router.put('/:productId', verifyToken, controller.edit)
 module.exports = router;

@@ -69,7 +69,7 @@ exports.add = async (req, res) => {
 exports.show = async (req, res) => {
     try {
         const products = await Product.findAll();
-        
+
         products.forEach((product) => {
             product.price = rupiahFormatter(product.price)
         })
@@ -84,5 +84,66 @@ exports.show = async (req, res) => {
             status: 'Server Error',
             message: error.message
         })
+    }
+}
+
+exports.edit = async (req, res) => {
+    const {price:newPrice, stock:newStock, title:newTitle} = req.body
+    const {role} = req.user
+    const {productId} = req.params
+
+    if (role !== "admin") {
+        return res.status(403).json({
+            status: 'Forbidden',
+            message: 'User unauthorized'
+        })
+    }
+
+    try {
+        const product = await Product.findByPk(productId)
+
+        if (product === null) {
+            return res.status(404).json({
+                status: "Not Found",
+                message: "Product not found"
+            })
+        }
+
+        const newProduct = await product.set({
+            price: newPrice,
+            stock: newStock,
+            title: newTitle,
+        })
+
+        const result = await newProduct.save()
+        result.price = rupiahFormatter(result.price)
+
+
+        return res.status(200).json({
+            product: result
+        })
+    } catch (error) {
+        // jika terjadi error sequelize terjadi
+        // maka tampilkan respon error
+        if (error.name.includes("Sequelize")) {
+            const err = error.errors
+            const errorList = err.map(d => {
+                let obj = {}
+                obj[d.path] = d.message
+                return obj;
+            })
+    
+            return res.status(400).json({
+                status: 'Data Error',
+                message: errorList
+            });
+        }
+    
+        //jika terjadi server error
+        //maka kembalikan respon tersebut
+        return res.status(500).json({
+            status: 'Server Error',
+            message: error.message
+        })       
     }
 }
