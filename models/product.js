@@ -64,7 +64,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
         }
     }, {
-        tableName: 'Products'
+        tableName: 'Products',
+        hooks: {
+            beforeCreate: function(product) {
+                product.createdAt = new Date();
+                product.updatedAt = new Date();
+            },
+            beforeUpdate: function(product) {
+                product.updatedAt = new Date();
+            }
+        }
     })
 
     Product.associate = models => {
