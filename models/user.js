@@ -105,7 +105,7 @@ module.exports = (sequelize, DataTypes) => {
             afterValidate: async function(user) {
                 user.password = await bcrypt.hash(user.password, 10);
             },
-            beforeCreate: function(user) {
+            beforeValidate: function(user) {
                 user.balance = 0;
                 user.role = 'costumer';
                 user.createdAt = new Date();
