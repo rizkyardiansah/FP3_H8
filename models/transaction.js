@@ -54,6 +54,54 @@ module.exports = (sequelize, DataTypes) => {
         Transaction.belongsTo(models.User, {foreignKey: 'UserId'});
         Transaction.belongsTo(models.Product, {foreignKey: 'ProductId'});
     }
-
+    Transaction.init({
+        product_id: {
+          type: DataTypes.INTEGER,
+          validate: {
+            notEmpty: {
+              msg: "Kolom ini harus diisi!"
+            },
+            isInt: {
+              msg: "Tipe data harus Integer!"
+            }
+          }
+        },
+        user_id: {
+          type: DataTypes.INTEGER,
+          validate: {
+            notEmpty: {
+              msg: "Kolom ini harus diisi!"
+            },
+            isInt: {
+              msg: "Tipe data harus Integer!"
+            }
+          }
+        },
+        quantity: {
+          type: DataTypes.INTEGER,
+          validate: {
+            notEmpty: {
+              msg: "Kolom ini harus diisi!"
+            },
+            isInt: {
+              msg: "Tipe data harus Integer!"
+            }
+          }
+        },
+        total_price: {
+          type: DataTypes.INTEGER,
+          validate: {
+            notEmpty: {
+              msg: "Kolom ini harus diisi!"
+            },
+            isInt: {
+              msg: "Tipe data harus Integer!"
+            }
+          }
+        }
+      }, {
+        sequelize,
+        modelName: 'Transaction',
+      });
     return Transaction;
 }
