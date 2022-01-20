@@ -1,12 +1,12 @@
-const { transactionHistory, product, user, categorie } = require('../models');
-const { verifyToken } =  require('../helpers/jwt');
-const rupiahFormat = require('../utils/rupiahFormat');
+const { Transaction: transactionHistory, Product: product, User:user, Category: categorie } = require('../models');
+const { verifyToken } =  require('../middleware/verifyToken');
+const rupiahFormat = require('../utils/rupiahFormatter');
 
 class transactionController {
   static createTransaction(req, res) {
     let { productId, quantity } = req.body;
     quantity = Number(quantity);
-    let encoded = verifyToken(req.headers.token);
+    let encoded = req.user;
     product.findOne({
       where: { id: productId}
     })
@@ -27,7 +27,7 @@ class transactionController {
         else {
           product.update(
             {
-              stok: data.stok - quantity
+              stock: data.stock - quantity
             },
             {
               where: {id: data.id},
@@ -65,8 +65,8 @@ class transactionController {
           })
           .then((data) => {
             let input = {
-              product_id: productId,
-              user_id: encoded.id,
+              ProductId: productId,
+              UserId: encoded.id,
               quantity: quantity,
               total_price: data.price
             }
@@ -98,23 +98,24 @@ class transactionController {
   }
 
   static getTransUser (req, res) {
-    let encoded = verifyToken(req.headers.token);
+    let encoded = req.user;
     transactionHistory.findAll({
       where: {
-        user_id: encoded.id
+        UserId: encoded.id
       },
       include: [
         {
           model: product,
-          attributes: ['id', 'title', 'price', 'stok', 'CategoryId']
+          attributes: ['id', 'title', 'price', 'stock', 'CategoryId']
         }
       ]
     })
     .then(data => {
       let errCode = 200;
+      console.log(data)
       data.map(item => {
         item.dataValues.total_price = rupiahFormat(item.dataValues.total_price);
-        item.dataValues.product.dataValues.price = rupiahFormat(item.dataValues.product.dataValues.price);
+        item.product.dataValues.price = rupiahFormat(item.product.dataValues.price);
       });
       if (!data) {
         errCode = 404;
@@ -134,11 +135,19 @@ class transactionController {
   }
 
   static getTransAdmin  (req, res)  {
+    const {role} = req.user
+    
+    if (role !== 'admin') {
+        return res.status(403).json({
+            status: 'Forbidden',
+            message: 'User unauthorized'
+        })
+    }
     transactionHistory.findAll({
       include: [
         {
           model: product,
-          attributes: ['id', 'title', 'price', 'stok', 'CategoryId']
+          attributes: ['id', 'title', 'price', 'stock', 'CategoryId']
         },
         {
           model: user,
@@ -183,7 +192,7 @@ class transactionController {
       where: {id: req.params.transactionId},
       include: {
         model: product,
-        attributes: ['id', 'title', 'price', 'stok', 'CategoryId']
+        attributes: ['id', 'title', 'price', 'stock', 'CategoryId']
       }
     })
     .then(data => {

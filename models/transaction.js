@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
         Transaction.belongsTo(models.Product, {foreignKey: 'ProductId'});
     }
     Transaction.init({
-        product_id: {
+        ProductId: {
           type: DataTypes.INTEGER,
           validate: {
             notEmpty: {
@@ -66,7 +66,7 @@ module.exports = (sequelize, DataTypes) => {
             }
           }
         },
-        user_id: {
+        UserId: {
           type: DataTypes.INTEGER,
           validate: {
             notEmpty: {
@@ -101,7 +101,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       }, {
         sequelize,
-        modelName: 'Transaction',
+        modelName: 'TransactionHistory',
       });
     return Transaction;
 }
