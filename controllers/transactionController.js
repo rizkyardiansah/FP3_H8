@@ -115,7 +115,7 @@ class transactionController {
       console.log(data)
       data.map(item => {
         item.dataValues.total_price = rupiahFormat(item.dataValues.total_price);
-        item.product.dataValues.price = rupiahFormat(item.product.dataValues.price);
+        item.Product.dataValues.price = rupiahFormat(item.Product.dataValues.price);
       });
       if (!data) {
         errCode = 404;
@@ -160,18 +160,18 @@ class transactionController {
       console.log(data)
       data.map(item => {
         item.dataValues.total_price = rupiahFormat(item.dataValues.total_price);
-        item.dataValues.product.dataValues.price = rupiahFormat(item.dataValues.product.dataValues.price);
-        item.dataValues.user.dataValues.balance = rupiahFormat(item.dataValues.user.dataValues.balance);
+        item.Product.dataValues.price = rupiahFormat(item.Product.dataValues.price);
+        item.User.dataValues.balance = rupiahFormat(item.User.dataValues.balance);
       });
       if (!data) {
         errCode = 404;
         res.status(errCode).send('Transaction not found!');
       }
       data.map(item => {
-        if(item.dataValues.user.role == 1) {
-          item.dataValues.user.role = 'admin'
+        if(item.User.dataValues.role == 1) {
+          item.User.dataValues.role = 'admin'
         } else {
-          item.dataValues.user.role = 'user'
+          item.User.dataValues.role = 'user'
         }
       });
       res.status(errCode).send({transactionHistory: data});
@@ -202,7 +202,7 @@ class transactionController {
         res.status(errCode).send('Transaction not found!');
       }
       data.total_price = rupiahFormat(data.total_price);
-      data.product.price = rupiahFormat(data.product.price);
+      data.Product.dataValues.price = rupiahFormat(data.Product.dataValues.price);
       res.status(errCode).send({transactionHistories: data});
     })
     .catch(err => {
