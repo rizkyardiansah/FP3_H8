@@ -5,7 +5,7 @@ const port = process.env.PORT || 3000
 const userRoute = require('./routes/userRoute')
 const categoryRoute = require('./routes/categoryRoute')
 const productRoute = require('./routes/productRoute');
-const transactionRoutes = require('./routes/transactionRoutes');
+const transactionRoute = require('./routes/transactionRoute');
 
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
@@ -13,6 +13,6 @@ app.use(express.urlencoded({extended: true}))
 app.use('/users/', userRoute)
 app.use('/categories/', categoryRoute)
 app.use('/products/', productRoute);
-app.use('/transactions/', transactionRoutes);
+app.use('/transactions/', transactionRoute);
 
 app.listen(port, () => console.log(`Running on port ${port}`))
