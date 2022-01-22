@@ -10,14 +10,13 @@ exports.register = async (req, res) => {
 
     try {
         //membuat user
-        const user = await User.create({full_name, password, gender, email})
+        const user = await User.create({full_name, password, gender, email, balance: 0})
         //mengembalikan data user
         return res.status(201).json({
             user: {
                 id: user.dataValues.id,
                 full_name: user.dataValues.full_name,
                 email: user.dataValues.email,
-                balance: 0,
                 gender: user.dataValues.gender,
                 balance: rupiahFormatter(user.dataValues.balance),
                 createdAt: user.dataValues.createdAt,
