@@ -36,7 +36,12 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
         }
     }, {
-        tableName: 'Categories'
+        tableName: 'Categories',
+        hooks: {
+            beforeValidate: function(category) {
+                category.sold_product_amount = 0;
+            }
+        }
     })
 
     Category.associate = models => {

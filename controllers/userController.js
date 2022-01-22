@@ -83,6 +83,9 @@ exports.login = async (req, res) => {
         //data yang akan disimpan di jwt
         const payload = {
             id: user.dataValues.id,
+            email: user.dataValues.email,
+            gander: user.dataValues.gander,
+            balance: user.dataValues.balance,
             role: user.dataValues.role
         }
 

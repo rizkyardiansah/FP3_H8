@@ -118,7 +118,7 @@ exports.edit = async (req, res) => {
         const result = await newProduct.save()
         result.price = rupiahFormatter(result.price)
 
-
+        
         return res.status(200).json({
             product: result
         })
