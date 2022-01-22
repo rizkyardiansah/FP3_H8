@@ -132,8 +132,7 @@ class transactionController {
         if (!data) {
           errCode = 404;
           res.status(errCode).send("Transaction not found!");
-        }
-        data = data.forEach(d => delete d.id);
+        }        
         res.status(errCode).json({ transactionHistory: data });
       })
       .catch(err => {
