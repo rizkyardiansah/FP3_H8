@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         sold_product_amount: {
             allowNull: false,
             type: DataTypes.INTEGER,
+            defaultValue: 0,
             validate: {
                 notNull: {
                     msg: "field 'sold_product_amount' is required"
@@ -37,11 +38,11 @@ module.exports = (sequelize, DataTypes) => {
         }
     }, {
         tableName: 'Categories',
-        hooks: {
-            beforeValidate: function(category) {
-                category.sold_product_amount = 0;
-            }
-        }
+        // hooks: {
+        //     beforeValidate: function(category) {
+        //         category.sold_product_amount = 0;
+        //     }
+        // }
     })
 
     Category.associate = models => {

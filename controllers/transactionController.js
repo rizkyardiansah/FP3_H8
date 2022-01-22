@@ -41,9 +41,10 @@ class transactionController {
               .findByPk(productId)
               .then( data => {
                 totalPrice = data.price * quantity;
+                //return res.json(encoded.balance);
                  user.update(
                   {
-                    balance: totalBalance - totalPrice
+                    balance: encoded.balance - totalPrice
                   },
                   {
                     where: {

@@ -102,7 +102,7 @@ module.exports = (sequelize, DataTypes) => {
     }, {
         tableName: 'Users',
         hooks: {
-            afterValidate: async function(user) {
+            beforeCreate: async function(user) {
                 user.password = await bcrypt.hash(user.password, 10);
             },
 
