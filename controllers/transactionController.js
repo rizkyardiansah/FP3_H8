@@ -20,7 +20,7 @@ class transactionController {
           status = 400;
           res.status(status).send('Quantity is more than existing stock!')
         }
-        else if(encoded.balance < quantity*data.price) {
+        else if(encoded.balance < quantity * data.price) {
           status = 400;
           res.status(status).send('Your balance is not enough!')
         }
