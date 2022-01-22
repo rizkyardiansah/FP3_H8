@@ -15,11 +15,13 @@ class categoryController {
         type
       }).then(rsl => {
         res.status(201).json({
-          id: rsl.id,
-          type: rsl.type,
-          updatedAt: rsl.updatedAt,
-          createdAt: rsl.createdAt,
-          sold_product_amount: rsl.sold_product_amount
+          category: {
+            id: rsl.id,
+            type: rsl.type,
+            updatedAt: rsl.updatedAt,
+            createdAt: rsl.createdAt,
+            sold_product_amount: rsl.sold_product_amount
+          }
         })
       }).catch(error => {
         const err = error.errors
