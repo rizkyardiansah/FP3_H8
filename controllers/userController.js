@@ -17,6 +17,7 @@ exports.register = async (req, res) => {
                 id: user.dataValues.id,
                 full_name: user.dataValues.full_name,
                 email: user.dataValues.email,
+                balance: 0,
                 gender: user.dataValues.gender,
                 balance: rupiahFormatter(user.dataValues.balance),
                 createdAt: user.dataValues.createdAt,
